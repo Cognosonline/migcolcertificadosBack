@@ -21,8 +21,21 @@ const app = express();
 
 app.set('trust proxy', 1);
 
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://certificadosmigcolombia.com',            
+  'https://www.certificadosmigcolombia.com'
+];
+
 const corsOptions = {
-  origin: 'http://localhost:5173', // dominio frontend
+  origin: (origin, callback) => {
+    // Permitir peticiones sin origin (por ejemplo, Postman) o si está en la lista
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
@@ -30,7 +43,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(morgan('dev'));
-app.options('*', cors(corsOptions));
+
 
 app.use(session({
   secret: process.env.CLIENT_SECRET,
