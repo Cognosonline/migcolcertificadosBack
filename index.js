@@ -23,7 +23,8 @@ app.set('trust proxy', 1);
 
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://certificadosmigcolombia.com',            
+  'https://master.d186x5g5jk3pm7.amplifyapp.com',    
+  'https://certificadosmigcolombia.com',   
   'https://www.certificadosmigcolombia.com'
 ];
 

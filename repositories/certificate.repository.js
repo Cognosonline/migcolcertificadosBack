@@ -43,28 +43,40 @@ const update = async (fileCourse, fileName) => {
 const updateCoords = async (fileCourse, 
     nameX, nameY,
     documentX, documentY,
+    courseNameX, courseNameY,
+    dateX, dateY,
     fontsize, fontFamily, color, italic) => {
     try {
-        const fileUpdate = await Certificate.findByIdAndUpdate(fileCourse._id,
-            {
-                fontsize: fontsize,
-                fontFamily:fontFamily,
-                color:color,
-                italic:italic,
-                nameX: nameX,
-                nameY: nameY,
-                documentX: documentX,
-                documentY: documentY
-            })
+        const updateData = {
+            fontsize: fontsize,
+            fontFamily: fontFamily,
+            color: color,
+            italic: italic,
+            nameX: nameX,
+            nameY: nameY,
+            documentX: documentX,
+            documentY: documentY
+        };
+
+        // Solo actualizar coordenadas de curso y fecha si se proporcionan
+        if (courseNameX !== undefined) updateData.courseNameX = courseNameX;
+        if (courseNameY !== undefined) updateData.courseNameY = courseNameY;
+        if (dateX !== undefined) updateData.dateX = dateX;
+        if (dateY !== undefined) updateData.dateY = dateY;
+
+        const fileUpdate = await Certificate.findByIdAndUpdate(fileCourse._id, updateData, { new: true });
 
         if (fileUpdate) {
-            console.log('actualizado')
+            console.log('Coordenadas actualizadas correctamente');
+            return fileUpdate;
         } else {
-            console.log('no actualizado')
+            console.log('No se pudo actualizar');
+            return null;
         }
 
     } catch (error) {
-        return console.log(error)
+        console.log('Error actualizando coordenadas:', error);
+        return null;
     }
 }
 
