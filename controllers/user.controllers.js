@@ -32,6 +32,7 @@ const getUSer = async (req, res) => {
             res.json({
                 payload:
                 {
+                    id: data.id,
                     nombre: data.name,
                     cedula: data.userName,
                     rol: data.institutionRoleIds
