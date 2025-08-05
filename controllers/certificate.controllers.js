@@ -1,7 +1,10 @@
-import { uploadFile, getFiles, getFile, downloadFile, getFileURL } from '../s3.js'
-import certificate from '../repositories/certificate.repository.js'
-import fs from 'fs'
 import axios from 'axios'
+import fs from 'fs'
+
+import { uploadFile, getFiles, downloadFile, getFileURL } from '../s3.js'
+
+import certificate from '../repositories/certificate.repository.js'
+import userCertificate from '../repositories/userCertificate.repository.js'
 
 const getCertificates = async (req, res) => {
     await getFiles()
@@ -117,7 +120,6 @@ const deletedCertificate = async (req, res) => {
     }
 }
 
-
 const updateCoords = async (req, res) => {
     try {        
         const fileCourse = await certificate.getOne(req.body.courseId)
@@ -134,8 +136,8 @@ const updateCoords = async (req, res) => {
         let documentY = req.body.documentY
         let courseNameX = req.body.courseNameX
         let courseNameY = req.body.courseNameY
-        let dateX = req.body.dateX
-        let dateY = req.body.dateY
+        let dateX = req.body.createdAtX
+        let dateY = req.body.createdAtY
 
         let { fontsize, fontFamily, color, italic } = req.body
 

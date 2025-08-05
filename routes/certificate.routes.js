@@ -16,6 +16,7 @@ import {
      updateReqScore,
      getReqScore
 } from '../controllers/certificate.controllers.js';
+import { getUserCertificate } from '../controllers/userCertificate.controllers.js';
 
 const router = Router();
 
@@ -24,6 +25,7 @@ router.get('/certificate/:filename', getCertificate);
 router.get('/certificateCourse/:courseId', getCertificateCourseId);
 router.get('/downloadCertificate/:filename', downloadCertificate);
 router.get('/reqScore/:courseId', getReqScore);
+router.get('/user-certificate/:userId/:courseId', getUserCertificate);
 
 router.post('/certificate', validateCertificateFile, validateCourseId, uploadCertificate);
 router.post('/coords', updateCoords);
