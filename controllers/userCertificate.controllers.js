@@ -1,36 +1,52 @@
+import { RESPONSE_MESSAGES, HTTP_STATUS } from '../constants/messages.js';
+
 import userRepo from '../repositories/user.repository.js';
 import certificateRepo from '../repositories/certificate.repository.js';
 import userCertificate from '../repositories/userCertificate.repository.js';
 
+import apiService from '../services/api.service.js';
+
 const createUserCertificate = async (req, userId, courseId) => {
   try {
-    const user = await userRepo.getId(userId);
-    if (!user) {
-      throw new Error('Usuario no encontrado');
+    const authToken = req.headers.authorization;
+
+    if (!authToken) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+        error: RESPONSE_MESSAGES.ERROR.INVALID_CREDENTIALS
+      });
     }
 
+    // get user data
+    const userData = await apiService.getUserByIdPrimary(userId, authToken);
+
+    if (userData.status === HTTP_STATUS.NOT_FOUND) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        payload: {
+          message: RESPONSE_MESSAGES.ERROR.USER_NOT_FOUND
+        }
+      });
+    }
+
+    // get certificate data
     const certificate = await certificateRepo.getOne(courseId);
     if (!certificate) {
       throw new Error('Certificado no encontrado para este curso');
     }
 
-    const authUser = req.headers.authorization;
-    const url = `${process.env.URL}/v3/courses/${courseId}`;
+    // Get course data
+    const courseData = await apiService.getCourseByCourseId(courseId, authToken);
 
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Authorization': authUser
-      }
-    })
+    if (!courseData || courseData.status === HTTP_STATUS.NOT_FOUND) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        error: 'Curso no encontrado'
+      });
+    }
 
-    const course = await response.json();
+    const studentName = `${userData.name.given} ${userData.name.family}`.trim();
+    const studentDocument = userData.userName;
+    const courseName = courseData.name;
 
-    const studentName = `${user.name} ${user.lastName || ''}`.trim();
-    const studentDocument = user.externalId;
-    const courseName = course.name;
-
-    // Crear issue
+    // Crear issue usando el ID de MongoDB del usuario
     const issue = await userCertificate.createIssue(
       userId,
       certificate._id,
@@ -49,10 +65,13 @@ const createUserCertificate = async (req, userId, courseId) => {
 
 const getUserCertificate = async (req, res) => {
   try {
-    const { userId, courseId } = req.params;
+    const userId = req.params.userId;
+    const courseId = req.params.courseId;
 
+    // Buscamos si ya existe un certificado para este usuario y curso
     let userCertificateData = await userCertificate.getByUserAndCourse(userId, courseId);
 
+    // Si no existe, lo creamos
     if (!userCertificateData) {
       userCertificateData = await createUserCertificate(req, userId, courseId);
     }
@@ -71,8 +90,33 @@ const getUserCertificate = async (req, res) => {
     res.json({
       message: 'Certificado emitido correctamente',
       payload: {
-        ...userCertificateData,
-        certificateUrl: 'url test',
+        userId: userCertificateData.userId,
+        certificate: {
+          fileName: userCertificateData.certificateId.fileName,
+          courseId: userCertificateData.certificateId.courseId,
+          nameX: userCertificateData.certificateId.nameX,
+          nameY: userCertificateData.certificateId.nameY,
+          documentX: userCertificateData.certificateId.documentX,
+          documentY: userCertificateData.certificateId.documentY,
+          courseNameX: userCertificateData.certificateId.courseNameX,
+          courseNameY: userCertificateData.certificateId.courseNameY,
+          dateX: userCertificateData.certificateId.dateX,
+          dateY: userCertificateData.certificateId.dateY,
+          widthR: userCertificateData.certificateId.widthR,
+          heightR: userCertificateData.certificateId.heightR,
+          fontsize: userCertificateData.certificateId.fontsize,
+          fontFamily: userCertificateData.certificateId.fontFamily,
+          color: userCertificateData.certificateId.color,
+          italic: userCertificateData.certificateId.italic,
+          state: userCertificateData.certificateId.state,
+          reqScore: userCertificateData.certificateId.reqScore,
+          createDate: userCertificateData.certificateId.createDate,
+        },
+        courseId: userCertificateData.courseId,
+        studentName: userCertificateData.studentName,
+        studentDocument: userCertificateData.studentDocument,
+        courseName: userCertificateData.courseName,
+        issuedDate: userCertificateData.issuedDate,
       }
     });
   } catch (error) {

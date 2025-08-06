@@ -5,8 +5,14 @@ const userCertificate = {}
 // Obtener emisión por usuario y curso
 const getByUserAndCourse = async (userId, courseId) => {
   try {
+    // Buscar primero por el userId como string (nombre de usuario)
+    const userByUsername = await import('../repositories/user.repository.js')
+      .then(module => module.default.getOne(userId));
+    
+    const mongoUserId = userByUsername ? userByUsername._id : null;
+    
     const issue = await UserCertificate.findOne({ 
-      userId: userId, 
+      userId: mongoUserId, 
       courseId: courseId
     }).populate('certificateId');
     return issue;
@@ -17,10 +23,14 @@ const getByUserAndCourse = async (userId, courseId) => {
 };
 
 // Crear nueva emisión (solo si no existe)
-const createIssue = async (userId, courseId, certificateId, studentName, studentDocument, courseName) => {
+const createIssue = async (userId, certificateId, courseId, studentName, studentDocument, courseName) => {
   try {
-    // Verificar si ya existe una emisión
-    const existingIssue = await getByUserAndCourse(userId, courseId);
+    // Verificar si ya existe una emisión directamente por userId (ObjectId) y courseId
+    const existingIssue = await UserCertificate.findOne({
+      userId: userId,
+      courseId: courseId
+    }).populate('certificateId');
+    
     if (existingIssue) {
       return existingIssue;
     }

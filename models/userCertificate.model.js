@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const Schema = mongoose.Schema
 
 const userCertificateSchema = new Schema({
-  userId: { type: Schema.Types.ObjectId, ref: 'user', required: true },
+  userId: { type: String, required: true },
   certificateId: { type: Schema.Types.ObjectId, ref: 'certificate', required: true },
   courseId: { type: String, required: true },
   studentName: { type: String, required: true },
