@@ -94,23 +94,55 @@ const getUserCertificate = async (req, res) => {
         certificate: {
           fileName: userCertificateData.certificateId.fileName,
           courseId: userCertificateData.certificateId.courseId,
+          
+          // Coordenadas y estilos para el nombre
           nameX: userCertificateData.certificateId.nameX,
           nameY: userCertificateData.certificateId.nameY,
+          nameFontSize: userCertificateData.certificateId.nameFontSize,
+          nameFontFamily: userCertificateData.certificateId.nameFontFamily,
+          nameColor: userCertificateData.certificateId.nameColor,
+          nameItalic: userCertificateData.certificateId.nameItalic,
+          nameBold: userCertificateData.certificateId.nameBold,
+          
+          // Coordenadas y estilos para el documento
           documentX: userCertificateData.certificateId.documentX,
           documentY: userCertificateData.certificateId.documentY,
+          documentFontSize: userCertificateData.certificateId.documentFontSize,
+          documentFontFamily: userCertificateData.certificateId.documentFontFamily,
+          documentColor: userCertificateData.certificateId.documentColor,
+          documentItalic: userCertificateData.certificateId.documentItalic,
+          documentBold: userCertificateData.certificateId.documentBold,
+          
+          // Coordenadas y estilos para el nombre del curso
           courseNameX: userCertificateData.certificateId.courseNameX,
           courseNameY: userCertificateData.certificateId.courseNameY,
+          courseNameFontSize: userCertificateData.certificateId.courseNameFontSize,
+          courseNameFontFamily: userCertificateData.certificateId.courseNameFontFamily,
+          courseNameColor: userCertificateData.certificateId.courseNameColor,
+          courseNameItalic: userCertificateData.certificateId.courseNameItalic,
+          courseNameBold: userCertificateData.certificateId.courseNameBold,
+          
+          // Coordenadas y estilos para la fecha
           dateX: userCertificateData.certificateId.dateX,
           dateY: userCertificateData.certificateId.dateY,
+          dateFontSize: userCertificateData.certificateId.dateFontSize,
+          dateFontFamily: userCertificateData.certificateId.dateFontFamily,
+          dateColor: userCertificateData.certificateId.dateColor,
+          dateItalic: userCertificateData.certificateId.dateItalic,
+          dateBold: userCertificateData.certificateId.dateBold,
+          
+          // Otros campos
           widthR: userCertificateData.certificateId.widthR,
           heightR: userCertificateData.certificateId.heightR,
+          state: userCertificateData.certificateId.state,
+          reqScore: userCertificateData.certificateId.reqScore,
+          createDate: userCertificateData.certificateId.createDate,
+          
+          // Campos legacy para compatibilidad
           fontsize: userCertificateData.certificateId.fontsize,
           fontFamily: userCertificateData.certificateId.fontFamily,
           color: userCertificateData.certificateId.color,
           italic: userCertificateData.certificateId.italic,
-          state: userCertificateData.certificateId.state,
-          reqScore: userCertificateData.certificateId.reqScore,
-          createDate: userCertificateData.certificateId.createDate,
         },
         courseId: userCertificateData.courseId,
         studentName: userCertificateData.studentName,

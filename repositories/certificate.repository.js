@@ -40,34 +40,75 @@ const update = async (fileCourse, fileName) => {
     }
 }
 
-const updateCoords = async (fileCourse, 
-    nameX, nameY,
-    documentX, documentY,
-    courseNameX, courseNameY,
-    dateX, dateY,
-    fontsize, fontFamily, color, italic) => {
+const updateCoords = async (fileCourse, formData) => {
     try {
-        const updateData = {
-            fontsize: fontsize,
-            fontFamily: fontFamily,
-            color: color,
-            italic: italic,
-            nameX: nameX,
-            nameY: nameY,
-            documentX: documentX,
-            documentY: documentY
+        const updateData = {};
+
+        // Función helper para convertir string a número
+        const parseNumber = (value) => {
+            if (value === undefined || value === null || value === '') return undefined;
+            const num = parseFloat(value);
+            return isNaN(num) ? undefined : num;
         };
 
-        // Solo actualizar coordenadas de curso y fecha si se proporcionan
-        if (courseNameX !== undefined) updateData.courseNameX = courseNameX;
-        if (courseNameY !== undefined) updateData.courseNameY = courseNameY;
-        if (dateX !== undefined) updateData.dateX = dateX;
-        if (dateY !== undefined) updateData.dateY = dateY;
+        // Función helper para convertir string a boolean
+        const parseBoolean = (value) => {
+            if (value === undefined || value === null || value === '') return undefined;
+            return value === 'true' || value === true;
+        };
+
+        // Función helper para decodificar color URL
+        const decodeColor = (value) => {
+            if (value === undefined || value === null || value === '') return undefined;
+            return decodeURIComponent(value);
+        };
+
+        // Actualizar coordenadas y estilos para el nombre
+        if (formData.nameX !== undefined) updateData.nameX = parseNumber(formData.nameX);
+        if (formData.nameY !== undefined) updateData.nameY = parseNumber(formData.nameY);
+        if (formData.nameFontSize !== undefined) updateData.nameFontSize = parseNumber(formData.nameFontSize);
+        if (formData.nameFontFamily !== undefined) updateData.nameFontFamily = formData.nameFontFamily;
+        if (formData.nameColor !== undefined) updateData.nameColor = decodeColor(formData.nameColor);
+        if (formData.nameItalic !== undefined) updateData.nameItalic = parseBoolean(formData.nameItalic);
+        if (formData.nameBold !== undefined) updateData.nameBold = parseBoolean(formData.nameBold);
+
+        // Actualizar coordenadas y estilos para el documento
+        if (formData.documentX !== undefined) updateData.documentX = parseNumber(formData.documentX);
+        if (formData.documentY !== undefined) updateData.documentY = parseNumber(formData.documentY);
+        if (formData.documentFontSize !== undefined) updateData.documentFontSize = parseNumber(formData.documentFontSize);
+        if (formData.documentFontFamily !== undefined) updateData.documentFontFamily = formData.documentFontFamily;
+        if (formData.documentColor !== undefined) updateData.documentColor = decodeColor(formData.documentColor);
+        if (formData.documentItalic !== undefined) updateData.documentItalic = parseBoolean(formData.documentItalic);
+        if (formData.documentBold !== undefined) updateData.documentBold = parseBoolean(formData.documentBold);
+
+        // Actualizar coordenadas y estilos para el nombre del curso
+        if (formData.courseNameX !== undefined) updateData.courseNameX = parseNumber(formData.courseNameX);
+        if (formData.courseNameY !== undefined) updateData.courseNameY = parseNumber(formData.courseNameY);
+        if (formData.courseNameFontSize !== undefined) updateData.courseNameFontSize = parseNumber(formData.courseNameFontSize);
+        if (formData.courseNameFontFamily !== undefined) updateData.courseNameFontFamily = formData.courseNameFontFamily;
+        if (formData.courseNameColor !== undefined) updateData.courseNameColor = decodeColor(formData.courseNameColor);
+        if (formData.courseNameItalic !== undefined) updateData.courseNameItalic = parseBoolean(formData.courseNameItalic);
+        if (formData.courseNameBold !== undefined) updateData.courseNameBold = parseBoolean(formData.courseNameBold);
+
+        // Actualizar coordenadas y estilos para la fecha
+        if (formData.dateX !== undefined) updateData.dateX = parseNumber(formData.dateX);
+        if (formData.dateY !== undefined) updateData.dateY = parseNumber(formData.dateY);
+        if (formData.dateFontSize !== undefined) updateData.dateFontSize = parseNumber(formData.dateFontSize);
+        if (formData.dateFontFamily !== undefined) updateData.dateFontFamily = formData.dateFontFamily;
+        if (formData.dateColor !== undefined) updateData.dateColor = decodeColor(formData.dateColor);
+        if (formData.dateItalic !== undefined) updateData.dateItalic = parseBoolean(formData.dateItalic);
+        if (formData.dateBold !== undefined) updateData.dateBold = parseBoolean(formData.dateBold);
+
+        // Mantener compatibilidad con campos legacy
+        if (formData.fontsize !== undefined) updateData.fontsize = parseNumber(formData.fontsize);
+        if (formData.fontFamily !== undefined) updateData.fontFamily = formData.fontFamily;
+        if (formData.color !== undefined) updateData.color = decodeColor(formData.color);
+        if (formData.italic !== undefined) updateData.italic = parseBoolean(formData.italic);
 
         const fileUpdate = await Certificate.findByIdAndUpdate(fileCourse._id, updateData, { new: true });
 
         if (fileUpdate) {
-            console.log('Coordenadas actualizadas correctamente');
+            console.log('Coordenadas y estilos actualizados correctamente');
             return fileUpdate;
         } else {
             console.log('No se pudo actualizar');
@@ -75,7 +116,7 @@ const updateCoords = async (fileCourse,
         }
 
     } catch (error) {
-        console.log('Error actualizando coordenadas:', error);
+        console.log('Error actualizando coordenadas y estilos:', error);
         return null;
     }
 }
