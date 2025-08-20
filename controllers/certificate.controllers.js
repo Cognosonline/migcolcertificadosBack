@@ -102,7 +102,7 @@ const getCertificateCourseId = async (req, res) => {
 
         res.json({
             payload: {
-                fileName: result.fileName,
+                fileName: result.fileName === 'null' ? null : result.fileName,
                 courseId: result.courseId,
                 
                 // Coordenadas y estilos para el nombre
