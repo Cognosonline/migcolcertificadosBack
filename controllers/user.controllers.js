@@ -18,6 +18,14 @@ const getUSer = async (req, res) => {
             }
         })
 
+        if (response.status === 429) {
+            return res.status(429).json({
+                message: 'Demasiadas solicitudes. Por favor, inténtalo de nuevo más tarde.',
+                error: 'RATE_LIMIT_EXCEEDED',
+                code: response.status
+            });
+        }
+
         const data = await response.json(); 
 
         if (data.status === 404) {
