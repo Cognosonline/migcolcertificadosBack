@@ -193,7 +193,7 @@ const getCourses = async (req, res) => {
                 })
                 const resultGradebook = await gradeBook.json();
 
-                await validateAndCreateCertificate(courseInfo.id, courseInfo.name);
+                await validateAndCreateCertificate(courseInfo.courseId, courseInfo.name);
 
                 return {
                     courseInfo: {

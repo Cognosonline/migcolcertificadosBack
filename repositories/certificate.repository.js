@@ -14,6 +14,9 @@ const getId = async (id) => {
 
 const getOne = async (courseId) => {
     try {
+        // const certificates = await Certificate.find({});
+        // console.log('Retrieved certificates:', certificates);
+
         const certificate = await Certificate.findOne({ courseId: courseId })
         
         return certificate
