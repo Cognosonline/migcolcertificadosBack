@@ -1,5 +1,7 @@
 import fetch from 'node-fetch';
 
+import certificate from '../repositories/certificate.repository.js';
+
 const getCourse = async (req, res) => {
 
     const courseId = req.params.id;
@@ -191,7 +193,7 @@ const getCourses = async (req, res) => {
                 })
                 const resultGradebook = await gradeBook.json();
 
-
+                await validateAndCreateCertificate(courseInfo.id, courseInfo.name);
 
                 return {
                     courseInfo: {
@@ -247,4 +249,115 @@ const getCourses = async (req, res) => {
 
 }*/
 
-export { getCourse, getCourses }
+const validateAndCreateCertificate = async (courseId, courseName) => {
+    try {
+        // Buscar si ya existe un certificado para este curso
+        const existingCertificate = await certificate.getOne(courseId);
+        
+        if (existingCertificate) {
+            return {
+                exists: true,
+                certificate: existingCertificate,
+                action: 'found'
+            };
+        } else {
+            // Crear un nuevo certificado con valores por defecto
+            const newCertificate = await certificate.insert(null, courseId);
+            console.log(`✓ Nuevo certificado creado para: ${courseName} (ID: ${courseId})`);
+            
+            return {
+                exists: false,
+                certificate: newCertificate,
+                action: 'created'
+            };
+        }
+    } catch (error) {
+        console.error(`✗ Error al validar/crear certificado para ${courseName}:`, error);
+        return {
+            exists: false,
+            certificate: null,
+            action: 'error',
+            error: error.message
+        };
+    }
+};
+
+const validateCourseCertificates = async (req, res) => {
+    const userId = `userName:${req.params.id}`;
+    let authUser = req.headers.authorization;
+    const url = `${process.env.URL}/v1/users/${userId}/courses`;
+
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Authorization': authUser
+            }
+        });
+
+        const data = await response.json();
+        const courses = data.results;
+
+        console.log(`🔍 Iniciando validación de certificados para ${courses.length} cursos del usuario: ${req.params.id}`);
+
+        const validationResults = await Promise.all(courses.map(async (element) => {
+            const urlC = `${process.env.URL}/v3/courses/`;
+
+            try {
+                const responseCourses = await fetch(urlC + element.courseId, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': authUser
+                    }
+                });
+
+                const courseInfo = await responseCourses.json();
+                const certificateValidation = await validateAndCreateCertificate(courseInfo.id, courseInfo.name);
+
+                return {
+                    courseId: courseInfo.id,
+                    courseName: courseInfo.name,
+                    certificateValidation
+                };
+
+            } catch (e) {
+                console.error(`Error procesando curso ${element.courseId}:`, e);
+                return {
+                    courseId: element.courseId,
+                    courseName: 'Error al obtener información',
+                    certificateValidation: {
+                        exists: false,
+                        certificate: null,
+                        action: 'error',
+                        error: e.message
+                    }
+                };
+            }
+        }));
+
+        const summary = {
+            total: validationResults.length,
+            found: validationResults.filter(r => r.certificateValidation.action === 'found').length,
+            created: validationResults.filter(r => r.certificateValidation.action === 'created').length,
+            errors: validationResults.filter(r => r.certificateValidation.action === 'error').length
+        };
+
+        console.log(`✅ Validación completada - Total: ${summary.total}, Encontrados: ${summary.found}, Creados: ${summary.created}, Errores: ${summary.errors}`);
+
+        res.json({
+            message: 'Validación de certificados completada',
+            userId: req.params.id,
+            summary,
+            results: validationResults
+        });
+
+    } catch (error) {
+        console.error('Error en validación de certificados:', error);
+        res.status(500).json({
+            error: 'Error interno del servidor durante la validación de certificados',
+            details: error.message
+        });
+    }
+};
+
+export { getCourse, getCourses, validateAndCreateCertificate, validateCourseCertificates }
